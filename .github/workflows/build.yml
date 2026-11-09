@@ -26,11 +26,16 @@ jobs:
       - name: Build APK
         working-directory: SuaraKu
         run: |
-          if ! gradle assembleDebug --no-daemon --stacktrace > build.log 2>&1; then
-            echo "===== PENYEBAB ERROR ====="
-            grep -A 12 "What went wrong" build.log | head -50
-            echo "===== BARIS ERROR KODE ====="
-            grep -E "^e: |error:|FAILED|Unresolved|not found" build.log | head -40
+          if ! gradle assembleDebug --no-daemon > build.log 2>&1; then
+            {
+              echo '## ERROR BUILD'
+              echo '```'
+              grep -A 15 "What went wrong" build.log | head -60
+              grep -E "^e: |error:|Unresolved" build.log | head -40
+              echo '--- 40 baris terakhir ---'
+              tail -40 build.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
